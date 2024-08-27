@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct TootNotificationParams: Codable, Sendable {
+public struct TootNotificationParams: Sendable {
 
     public init(excludeTypes: [TootNotification.NotificationType]? = nil, types: [TootNotification.NotificationType]? = nil) {
         self.excludeTypes = excludeTypes != nil ? Set(excludeTypes!) : nil

@@ -4,7 +4,7 @@
 import Foundation
 
 /// Represents a notification of an event relevant to the user.
-public struct TootNotification: Codable, Hashable, Identifiable, Sendable {
+public struct TootNotification: Decodable, Hashable, Identifiable, Sendable {
     public init(
         id: String,
         type: TootNotification.NotificationType,
@@ -38,7 +38,7 @@ public struct TootNotification: Codable, Hashable, Identifiable, Sendable {
     /// Summary of the event that caused follow relationships to be severed. Attached when type of the notification is ``NotificationType/severedRelationships``.
     public var relationshipSeveranceEvent: RelationshipSeveranceEvent?
 
-    public enum NotificationType: Codable, Hashable, Sendable, CaseIterable, RawRepresentable {
+    public enum NotificationType: Decodable, Hashable, Sendable, CaseIterable {
         /// Someone followed you
         case follow
         /// Someone mentioned you in their post
@@ -73,11 +73,6 @@ public struct TootNotification: Codable, Hashable, Identifiable, Sendable {
             self = NotificationType(rawValue: rawValue)
         }
 
-        public func encode(to encoder: any Encoder) throws {
-            var container = encoder.singleValueContainer()
-            try container.encode(rawValue)
-        }
-
         public init(rawValue: String) {
             switch rawValue {
             case "follow":
@@ -102,14 +97,14 @@ public struct TootNotification: Codable, Hashable, Identifiable, Sendable {
                 self = .adminReport
             case "severed_relationships":
                 self = .severedRelationships
-            case "emoji_reaction":
+            case "emoji_reaction", "pleroma:emoji_reaction":
                 self = .emojiReaction
             default:
                 self = .unknown(rawValue)
             }
         }
 
-        public var rawValue: String {
+        public func rawValue(flavour: TootSDKFlavour) -> String {
             switch self {
             case .follow: return "follow"
             case .mention: return "mention"
@@ -122,7 +117,11 @@ public struct TootNotification: Codable, Hashable, Identifiable, Sendable {
             case .adminSignUp: return "admin.sign_up"
             case .adminReport: return "admin.report"
             case .severedRelationships: return "severed_relationships"
-            case .emojiReaction: return "emoji_reaction"
+            case .emojiReaction:
+                if flavour == .pleroma || flavour == .akkoma {
+                    return "pleroma:emoji_reaction"
+                }
+                return "emoji_reaction"
             case .unknown(let rawValue): return rawValue
             }
         }
@@ -152,7 +151,7 @@ public struct TootNotification: Codable, Hashable, Identifiable, Sendable {
                     .follow, .mention, .repost, .favourite, .poll, .followRequest, .post, .update, .adminSignUp, .adminReport, .severedRelationships,
                 ]
             case .pleroma, .akkoma:
-                return [.follow, .mention, .repost, .favourite, .poll, .followRequest, .update]
+                return [.follow, .mention, .repost, .favourite, .poll, .followRequest, .update, .emojiReaction]
             case .friendica:
                 return [.follow, .mention, .repost, .favourite, .poll]
             case .pixelfed:
