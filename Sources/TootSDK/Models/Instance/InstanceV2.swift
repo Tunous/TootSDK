@@ -122,14 +122,14 @@ public struct InstanceV2: Codable, Hashable, Sendable {
             }
         }
 
-        public init(url: String, blurhash: String? = nil, versions: Versions? = nil) {
+        public init(url: String?, blurhash: String? = nil, versions: Versions? = nil) {
             self.url = url
             self.blurhash = blurhash
             self.versions = versions
         }
 
         /// URL for the thumbnail image.
-        public var url: String
+        public var url: String?
         /// Hash computed by the BlurHash algorithm for colorful preview thumbnails when media has not been downloaded yet.
         public var blurhash: String?
         /// Scaled resolution versions of the image intended for various DPI screens.
