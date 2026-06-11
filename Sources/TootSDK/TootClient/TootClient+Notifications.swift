@@ -204,6 +204,20 @@ extension TootClient {
             queryParameters.append(contentsOf: types.map({ .init(name: "exclude_types[]", value: $0.rawValue(flavour: flavour)) }))
         }
 
+        if let accountId = params.accountId {
+            queryParameters.append(URLQueryItem(name: "account_id", value: accountId))
+        }
+
+        if let includeFiltered = params.includeFiltered {
+            queryParameters.append(URLQueryItem(name: "include_filtered", value: String(includeFiltered)))
+        }
+
+        if let supportedTypes = params.supportedTypes, !supportedTypes.isEmpty {
+            queryParameters.append(contentsOf: supportedTypes.map {
+                URLQueryItem(name: "supported_types[]", value: $0.rawValue(flavour: flavour))
+            })
+        }
+
         return queryParameters
     }
 

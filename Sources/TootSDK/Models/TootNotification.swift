@@ -12,7 +12,10 @@ public struct TootNotification: Codable, Hashable, Identifiable, Sendable {
         createdAt: Date,
         post: Post? = nil,
         report: Report? = nil,
-        relationshipSeveranceEvent: RelationshipSeveranceEvent? = nil
+        relationshipSeveranceEvent: RelationshipSeveranceEvent? = nil,
+        groupKey: String? = nil,
+        moderationWarning: AccountWarning? = nil,
+        fallback: NotificationFallback? = nil
     ) {
         self.id = id
         self.type = type
@@ -21,6 +24,9 @@ public struct TootNotification: Codable, Hashable, Identifiable, Sendable {
         self.post = post
         self.report = report
         self.relationshipSeveranceEvent = relationshipSeveranceEvent
+        self.groupKey = groupKey
+        self.moderationWarning = moderationWarning
+        self.fallback = fallback
     }
 
     /// The id of the notification in the database.
@@ -39,6 +45,13 @@ public struct TootNotification: Codable, Hashable, Identifiable, Sendable {
     public var relationshipSeveranceEvent: RelationshipSeveranceEvent?
     /// The used emoji, available if type is ``NotificationType/emojiReaction`` and flavour provides it.
     public var emoji: String?
+    /// Group key shared by similar notifications, to be used in the grouped notifications feature.
+    /// Should be considered opaque, but ungrouped notifications can be assumed to have a group_key of the form ungrouped-{notification_id}.
+    public var groupKey: String?
+    /// Moderation warning that caused the notification. Attached when type of the notification is moderation_warning.
+    public var moderationWarning: AccountWarning?
+    /// Fallback information for notification types the client may not support. Only available for some types when supported_types is used.
+    public var fallback: NotificationFallback?
 
     public enum NotificationType: Codable, Hashable, Sendable, CaseIterable, RawRepresentable {
         /// Someone followed you
@@ -239,8 +252,11 @@ public struct TootNotification: Codable, Hashable, Identifiable, Sendable {
         case createdAt
         case post = "status"
         case report
-        case relationshipSeveranceEvent = "relationship_severance_event"
+        case relationshipSeveranceEvent = "event"
         case emoji
+        case groupKey
+        case moderationWarning
+        case fallback
     }
 }
 
